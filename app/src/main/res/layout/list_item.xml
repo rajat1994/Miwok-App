@@ -12,7 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/miwok_text_view"
-        tools:text="lutti"/>
+        tools:text="lutti"
+        />
 
     <TextView
             android:id="@+id/default_text_view"
