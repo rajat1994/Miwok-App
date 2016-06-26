@@ -28,13 +28,17 @@ public class NumbersActivity extends AppCompatActivity {
 
 
         LinearLayout rootview = (LinearLayout)findViewById(R.id.rootview);
-        TextView wordview = new TextView(this);
-        wordview.setText(words.get(0));
-        rootview.addView(wordview);
 
-        TextView wordview2 = new TextView(this);
-        wordview2.setText(words.get(1));
-        rootview.addView(wordview2);
+        int i = 0;
+        while(i< words.size()) {
+            TextView wordview = new TextView(this);
+            wordview.setText(words.get(i));
+            rootview.addView(wordview);
+
+            i++;
+        }
+
+
 
 
 
