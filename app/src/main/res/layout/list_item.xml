@@ -18,7 +18,7 @@
 
 <LinearLayout
     android:layout_width="match_parent"
-
+    android:id = "@+id/text_container"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingLeft="16dp"
