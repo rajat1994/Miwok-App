@@ -44,8 +44,17 @@ public class WordAdapter extends ArrayAdapter<word> {
         // Get the Version Number from the current AndroidFlavor object and set this text on the vNumberTextView
         defaultTextView.setText(currentWord.getDefaultTranslation());
 
-        ImageView imageResourceId = (ImageView) listItemView.findViewById(R.id.image);
-        imageResourceId.setImageResource(currentWord.getImageResourceId());
+        ImageView imageView = (ImageView) listItemView.findViewById(R.id.image);
+        // Check if an image is provided for this word or not
+        if (currentWord.hasImage()) {
+            // If an image is available, display the provided image based on the resource ID
+            imageView.setImageResource(currentWord.getImageResourceId());
+            // Make sure the view is visible
+            imageView.setVisibility(View.VISIBLE);
+        } else {
+            // Otherwise hide the ImageView (set visibility to GONE)
+            imageView.setVisibility(View.GONE);
+        }
 
 
         return listItemView;
