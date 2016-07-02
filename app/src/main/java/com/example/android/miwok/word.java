@@ -16,18 +16,22 @@ public class word {
     /** Constant value that represents no image was provided for this word */
     private static final int NO_IMAGE_PROVIDED = -1;
 
-    public word(String defaultTranslation, String miwokTranslation){
+    private int mAudioResourceId;
+
+    public word(String defaultTranslation, String miwokTranslation, int audioResourceId){
 
         mDefaultTranslation = defaultTranslation;
         mMiwokTranslation = miwokTranslation;
+        mAudioResourceId = audioResourceId;
 
     }
 
-    public word(String defaultTranslation, String miwokTranslation, int imageResouceId){
+    public word(String defaultTranslation, String miwokTranslation, int imageResouceId,int audioResourceId){
 
         mDefaultTranslation = defaultTranslation;
         mMiwokTranslation = miwokTranslation;
         mImageResourceId = imageResouceId;
+        mAudioResourceId = audioResourceId;
 
     }
 
@@ -48,6 +52,10 @@ public class word {
 
     public boolean hasImage() {
         return mImageResourceId != NO_IMAGE_PROVIDED;
+    }
+
+    public int getAudioResourceId() {
+        return mAudioResourceId;
     }
 
 }
