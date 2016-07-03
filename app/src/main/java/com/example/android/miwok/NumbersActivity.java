@@ -13,6 +13,14 @@ public class NumbersActivity extends AppCompatActivity {
 
 
     private MediaPlayer mMediaplayer;
+
+    private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mediaPlayer) {
+            // Now that the sound file has finished playing, release the media player resources.
+            releaseMediaPlayer();
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,9 +39,8 @@ public class NumbersActivity extends AppCompatActivity {
         words.add(new word("ten", "na’aacha", R.drawable.number_ten, R.raw.number_ten));
 
 
-
         WordAdapter Adapter =
-                new WordAdapter(this, words,R.color.category_numbers);
+                new WordAdapter(this, words, R.color.category_numbers);
 
         ListView listView = (ListView) findViewById(R.id.list);
 
@@ -44,10 +51,28 @@ public class NumbersActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 word w = words.get(position);
-                mMediaplayer = MediaPlayer.create(NumbersActivity.this,w.getAudioResourceId());
+                releaseMediaPlayer();
+                mMediaplayer = MediaPlayer.create(NumbersActivity.this, w.getAudioResourceId());
                 mMediaplayer.start();
+
+                mMediaplayer.setOnCompletionListener(mCompletionListener);
             }
         });
+    }
+
+        private void releaseMediaPlayer() {
+            // If the media player is not null, then it may be currently playing a sound.
+            if (mMediaplayer != null) {
+                // Regardless of the current state of the media player, release its resources
+                // because we no longer need it.
+                mMediaplayer.release();
+
+                // Set the media player back to null. For our code, we've decided that
+                // setting the media player to null is an easy way to tell that the media player
+                // is not configured to play an audio file at the moment.
+                mMediaplayer = null;
+            }
+        }
 
 
 
@@ -57,4 +82,4 @@ public class NumbersActivity extends AppCompatActivity {
 
 
     }
-}
+
