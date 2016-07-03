@@ -18,6 +18,26 @@ public class NumbersActivity extends AppCompatActivity {
 
     private AudioManager mAudioManager;
 
+    private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener =
+            new AudioManager.OnAudioFocusChangeListener() {
+                public void onAudioFocusChange(int focusChange) {
+                    if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ||
+                            focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+                        // Pause playback
+
+                        mMediaplayer.pause();
+                        mMediaplayer.seekTo(0);
+                    } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                        // Resume playback
+
+                        mMediaplayer.start();
+                    } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                        releaseMediaPlayer();
+                        // Stop playback
+                    }
+                }
+            };
+
     private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {
@@ -61,14 +81,14 @@ public class NumbersActivity extends AppCompatActivity {
 
 
                 // Request audio focus for playback
-                int result = mAudioManager.requestAudioFocus(afChangeListener,
+                int result = mAudioManager.requestAudioFocus(mOnAudioFocusChangeListener,
                         // Use the music stream.
                         AudioManager.STREAM_MUSIC,
                         // Request permanent focus.
                         AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
 
                 if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                    mAudioManager.registerMediaButtonEventReceiver(RemoteControlReceiver);
+
                     // Start playback.
 
                 mMediaplayer = MediaPlayer.create(NumbersActivity.this, w.getAudioResourceId());
@@ -99,6 +119,8 @@ public class NumbersActivity extends AppCompatActivity {
                 // setting the media player to null is an easy way to tell that the media player
                 // is not configured to play an audio file at the moment.
                 mMediaplayer = null;
+
+                mAudioManager.abandonAudioFocus(mOnAudioFocusChangeListener);
             }
         }
 

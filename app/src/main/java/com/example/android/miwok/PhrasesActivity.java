@@ -1,5 +1,7 @@
 package com.example.android.miwok;
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +15,28 @@ public class PhrasesActivity extends AppCompatActivity {
 
     private MediaPlayer mMediaplayer;
 
+    private AudioManager mAudioManager;
+
+    private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener =
+            new AudioManager.OnAudioFocusChangeListener() {
+                public void onAudioFocusChange(int focusChange) {
+                    if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ||
+                            focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+                        // Pause playback
+
+                        mMediaplayer.pause();
+                        mMediaplayer.seekTo(0);
+                    } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                        // Resume playback
+
+                        mMediaplayer.start();
+                    } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                        releaseMediaPlayer();
+                        // Stop playback
+                    }
+                }
+            };
+
     private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {
@@ -24,6 +48,7 @@ public class PhrasesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.words_list);
+        mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         final ArrayList<word> words = new ArrayList<word>();
 
         words.add(new word("Where are you going?", "minto wuksus",
@@ -55,8 +80,23 @@ public class PhrasesActivity extends AppCompatActivity {
                 word w = words.get(position);
 
                 releaseMediaPlayer();
-                mMediaplayer = MediaPlayer.create(PhrasesActivity.this,w.getAudioResourceId());
-                mMediaplayer.start();
+
+
+                int result = mAudioManager.requestAudioFocus(mOnAudioFocusChangeListener,
+                        // Use the music stream.
+                        AudioManager.STREAM_MUSIC,
+                        // Request permanent focus.
+                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+
+                if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+
+                    // Start playback.
+
+                    mMediaplayer = MediaPlayer.create(PhrasesActivity.this, w.getAudioResourceId());
+                    mMediaplayer.start();
+
+                    mMediaplayer.setOnCompletionListener(mCompletionListener);
+                }
             }
         });
     }
@@ -79,6 +119,7 @@ public class PhrasesActivity extends AppCompatActivity {
             // setting the media player to null is an easy way to tell that the media player
             // is not configured to play an audio file at the moment.
             mMediaplayer = null;
+            mAudioManager.abandonAudioFocus(mOnAudioFocusChangeListener);
         }
     }
 }
