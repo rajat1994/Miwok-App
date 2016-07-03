@@ -1,5 +1,7 @@
 package com.example.android.miwok;
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +16,8 @@ public class NumbersActivity extends AppCompatActivity {
 
     private MediaPlayer mMediaplayer;
 
+    private AudioManager mAudioManager;
+
     private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {
@@ -25,6 +29,8 @@ public class NumbersActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.words_list);
+
+        mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         final ArrayList<word> words = new ArrayList<word>();
 
         words.add(new word("one", "lutti", R.drawable.number_one, R.raw.number_one));
@@ -52,10 +58,24 @@ public class NumbersActivity extends AppCompatActivity {
 
                 word w = words.get(position);
                 releaseMediaPlayer();
+
+
+                // Request audio focus for playback
+                int result = mAudioManager.requestAudioFocus(afChangeListener,
+                        // Use the music stream.
+                        AudioManager.STREAM_MUSIC,
+                        // Request permanent focus.
+                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+
+                if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    mAudioManager.registerMediaButtonEventReceiver(RemoteControlReceiver);
+                    // Start playback.
+
                 mMediaplayer = MediaPlayer.create(NumbersActivity.this, w.getAudioResourceId());
                 mMediaplayer.start();
 
                 mMediaplayer.setOnCompletionListener(mCompletionListener);
+                }
             }
         });
     }
